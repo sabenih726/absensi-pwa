@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<!-- Login Form -->
+<div id="loginForm" class="min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-xl shadow-xl max-w-md w-full">
+    <h2 class="text-2xl font-bold mb-6">Admin Login</h2>
+    <input id="email" type="email" placeholder="Email" class="w-full p-3 border rounded mb-4">
+    <input id="password" type="password" placeholder="Password" class="w-full p-3 border rounded mb-4">
+    <button id="loginBtn" class="w-full bg-blue-600 text-white py-3 rounded font-semibold">
+      Login
+    </button>
+  </div>
+</div>
+
+<!-- Admin Dashboard -->
+<div id="dashboard" class="hidden p-4">
+  <div class="container mx-auto max-w-7xl">
+    <header class="bg-white rounded-xl shadow p-6 mb-6">
+      <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+        <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="text-gray-600">Total Employee</h3>
+        <p id="totalEmp" class="text-3xl font-bold">0</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="text-gray-600">Check-in Hari Ini</h3>
+        <p id="todayCheckin" class="text-3xl font-bold">0</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="text-gray-600">Rata-rata Kehadiran</h3>
+        <p id="avgAttendance" class="text-3xl font-bold">0%</p>
+      </div>
+    </div>
+
+    <!-- Employee Management -->
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+      <h2 class="text-xl font-bold mb-4">Manajemen Employee</h2>
+      <div id="employeeList" class="space-y-2"></div>
+    </div>
+
+    <!-- Live Attendance Log -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">Log Absensi Real-time</h2>
+        <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded">
+          Export CSV
+        </button>
+      </div>
+      <div id="attendanceLog" class="space-y-2 max-h-96 overflow-y-auto"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="admin.js"></script>
+</body>
+</html>
