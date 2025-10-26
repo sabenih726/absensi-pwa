@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Employee</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+<div class="container mx-auto p-4 max-w-6xl">
+  <header class="bg-white rounded-xl shadow p-6 mb-6">
+    <h1 class="text-2xl font-bold">Dashboard Employee</h1>
+    <p class="text-gray-600">Selamat datang, <span id="empName" class="font-semibold"></span></p>
+  </header>
+
+  <!-- Quick Attendance -->
+  <div class="bg-white rounded-xl shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Absensi Cepat</h2>
+    <button id="checkInBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg text-lg font-semibold w-full">
+      Check In Sekarang
+    </button>
+    <div id="locationInfo" class="mt-4 text-sm text-gray-600"></div>
+  </div>
+
+  <!-- Attendance History -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-xl font-semibold mb-4">Riwayat Absensi Anda</h2>
+    <div id="attendanceList" class="space-y-2"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { 
+  getFirestore, collection, addDoc, query, where, getDocs, orderBy, Timestamp 
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const empName = localStorage.getItem('currentEmployee');
+if (!empName) window.location.href = 'index.html';
+
+document.getElementById('empName').textContent = empName;
+
+// Voice Feedback
+function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'id-ID';
+  speechSynthesis.speak(utterance);
+}
+
+// Check In with Location
+document.getElementById('checkInBtn').onclick = () => {
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const { latitude, longitude } = position.coords;
+    
+    await addDoc(collection(db, 'attendance'), {
+      name: empName,
+      timestamp: Timestamp.now(),
+      location: { lat: latitude, lng: longitude },
+      type: 'check-in'
+    });
+    
+    document.getElementById('locationInfo').innerHTML = 
+      `✓ Check-in berhasil di koordinat: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    
+    speak(`Check in berhasil untuk ${empName}`);
+    loadAttendance();
+  }, 
+  () => {
+    alert('Izin lokasi diperlukan untuk absensi');
+  });
+};
+
+// Load Attendance History
+async function loadAttendance() {
+  const q = query(
+    collection(db, 'attendance'),
+    where('name', '==', empName),
+    orderBy('timestamp', 'desc')
+  );
+  
+  const snapshot = await getDocs(q);
+  const list = document.getElementById('attendanceList');
+  list.innerHTML = '';
+  
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const date = data.timestamp.toDate();
+    const div = document.createElement('div');
+    div.className = 'flex justify-between p-3 bg-gray-50 rounded-lg';
+    div.innerHTML = `
+      <span>${date.toLocaleDateString('id-ID')}</span>
+      <span class="font-medium">${date.toLocaleTimeString('id-ID')}</span>
+      <span class="text-green-600">${data.type}</span>
+    `;
+    list.appendChild(div);
+  });
+}
+
+loadAttendance();
+</script>
+</body>
+</html>
